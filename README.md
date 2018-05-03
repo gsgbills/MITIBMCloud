@@ -1,10 +1,9 @@
 # MITIBMCloud
-Information relevant to IBM Cloud use in MIT
 
-## How can I run code on IBM Cloud [Watson Studio](https://www.ibm.com/cloud/watson-studio) (for free) ?
+## How can I run code on IBM Cloud [Watson Studio](https://www.ibm.com/cloud/watson-studio)?
 
-Here are the steps to setup your account to use Machine Learing (ML) training runs on different numbers and types of GPUs.
-**These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
+Here are the setup steps to to use the Machine Learing (ML) service.
+**NB: These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
 
 What we will do as a one time Setup:
 0. Confirm that you have an IBM Cloud userid
@@ -147,9 +146,9 @@ Use `aws` tool to add `access_key_id` and `secret_access_key` to a profile and n
 aws configure --profile my_profile
 ```
 
-#### 3.4 Copy the keys! You'll need them again a little later to access your resources...
+#### 5.4 Copy the keys! You'll need them again a little later to access your resources...
 
-#### 3.5. Create a bucket:
+#### 5.5. Create a bucket:
 Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. Below we use "my_bucket"
 ```
 bucket_name="my_bucket"
