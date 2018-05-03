@@ -57,10 +57,13 @@ In order to run jobs on Watson, you need an `organization` (also called `org`) a
 #### 3.1 Use an existing org
 The account owner should have already created an `org` for you (and others) to share assets.
 You can find out the organizations available for you with the command:<br>
+
 ```
 bx account orgs
 ```
+
 The command will return something like:
+
 ```
 Name                Region     Account owner      Account ID                         Status   
 MITIBMWatsonAiLab   us-south   ailab@us.ibm.com   5eb998dd20e3d7fc0153329e32362d64   active   
@@ -162,8 +165,6 @@ export MY_BUCKET_SECRET_KEY = secret_access_key
 Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. **NB: the bucket names may not contain upper-case, underscores, dashes, periods, etc. Just use simple text, e.g., below we call the bucket "mybucket".  
 ```
 bucket_name="mybucket"
-alias bucketcmd = ""
-```
 
 aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
 ```
