@@ -6,11 +6,13 @@ Information relevant to IBM Cloud use in MIT
 Here are the steps to setup your account to use Machine Learing (ML) training runs on different numbers and types of GPUs.
 **These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
 
-What we will do:
+What we will do as a one time Setup:
 0. Confirm that you have an IBM Cloud userid
 1. Download [CLI tools](https://console.bluemix.net/docs/cli/index.html#overview) to access and manage resources in the IBM Cloud
-2. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
-3. 4. Configure your IBM Cloud githaccount
+2. Configure your IBM Cloud account. 
+3. Create a Watson ML Instance
+4. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
+ 
 
 ### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
@@ -145,8 +147,9 @@ space_name="dev"
 bx target -o $org_name -s $space_name
 
 ### Step 5: Create a Watson ML Instance
-#### 5.1. Setup a Watson ML Instance
+Now Lets create an instance of Machine Learning Service
 
+#### 5.1. Setup a Watson ML Instance
 ```
 bx service create pm-20 lite CLI_WML_Instance
 bx service key-create CLI_WML_Instance cli_key_CLI_WML_Instance
@@ -154,13 +157,21 @@ instance_id=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | gre
 username=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "username"| awk -F": " '{print $2}'| cut -d'"' -f2`
 password=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "password"| awk -F": " '{print $2}'| cut -d'"' -f2`
 url=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "url"| awk -F": " '{print $2}'| cut -d'"' -f2`
+```
+#### 5.2 Save the relevant ids for later use.
+```
 export ML_INSTANCE=$instance_id
 export ML_USERNAME=$username
 export ML_PASSWORD=$password
 export ML_ENV=$url
 ```
 
-### Step 6: Upload your dataset (CIFAR10) to your bucket: (Last setup step)
+## Congratulations you are done with the one-time SETUP!
+
+
+##Now, to test that your setup is working, lets try a simple model...
+
+### Step 6: Upload a dataset to your bucket: (Last setup step)
 
 This will upload our dataset to the bucket we created:
 
