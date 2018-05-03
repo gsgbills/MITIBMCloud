@@ -9,11 +9,11 @@ Here are the steps to setup your account to use Machine Learing (ML) training ru
 What we will do as a one time Setup:
 0. Confirm that you have an IBM Cloud userid
 1. Download [CLI tools](https://console.bluemix.net/docs/cli/index.html#overview) to access and manage resources in the IBM Cloud
-2. Configure your IBM Cloud account. 
-3. Create a Watson ML Instance
-4. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
+2. Login thru the CLI to your IBM Cloud account
+3. Configure your IBM Cloud account. 
+4. Create a Watson ML Instance
+5. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
  
-
 ### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
 Goto [https://console.bluemix.net/](https://console.bluemix.net/) and login
@@ -50,66 +50,12 @@ Now we will create data and service resources in the IBM Cloud. First we login.
 bx login
 ```
 
-### Step 3: Create a bucket in the Cloud to store your data
-
-A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is a huge "folder" in the cloud. You use the bucket to put and get any file or folder (e.g., your datasets) using an api-style interface.
-
-#### 3.1. Create a cloud storage instance:
-
-First, lets create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
-
-```
-bx resource service-instance-create `my_instance` cloud-object-storage lite global
-bx resource service-instance `my_instance`
-```
-
-#### 3.2. Get security credentials:
-
-We then create and get your personal instance credentials naming it `my_cli_key` so that you can create and access your bucket.
-
-Create key and print it:
-
-```
-bx resource service-key-create "my_cli_key" Writer --instance-name "my_instance" --parameters '{"HMAC":true}' > /dev/null 2>&1
-access_key_id=`bx resource service-key my_cli_key | grep "access_key_id"| cut -d\:  -f2`
-secret_access_key=`bx resource service-key my_cli_key | grep "secret_access_key"| cut -d\:  -f2`
-echo ""; echo "Credentials:"; echo "access_key_id - $access_key_id"; echo "secret_access_key - $secret_access_key"; echo ""
-```
-
-#### 3.3 Save your keys in a profile so you can reuse them later
-
-Add `access_key_id` and `secret_access_key` to your awscli profile and name it `my_profile` (leave the other fields as None).
-
-```
-aws configure --profile my_profile
-```
-
-Copy these keys! You'll need them again a little later.
-
-#### 3.4. Create a bucket:
-
-Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name.
-
-```
-bucket_name=<A_UNIQUE_NAME_FOR_YOUR_BUCKET>
-```
-for example:<br>
-bucket_name=mylastnamemyfirstname
-
-and run:
-
-```
-aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
-```
-
-
-
-### 4. Configure your account to access IBM Cloud 
+### 3. Configure your account to access IBM Cloud 
 
 In order to run jobs on Watson, you need an `organization` (also called `org`) and a `space` to hold your jobs. 
 `Org` names are also globally unique. 
 
-#### 4.1 Use an existing org
+#### 3.1 Use an existing org
 The account owner should have already created an `org` for you (and others) to share assets.
 You can find out the organizations available for you with the command:<br>
 ```
@@ -125,7 +71,7 @@ Select the correct `Name` and save it in a variable, i.e.,
 org_name="MITIBMWatsonAiLab"
 ```
 
-#### 4.2 Create your own space
+#### 3.2 Use your own space
 
 Now lets find out the name of the `space` for you under the `org`. 
 ```
@@ -139,17 +85,18 @@ OK
 Name   
 dev 
 ```
-Select the correct space `Name` and save it in a variable, i.e.,
+Select the correct space `Name` and save it in a variable, e.g.,
 ```
 space_name="dev"
 ```
-#### 4.3 Lets set the targeted org and space 
+#### 3.3 Lets set the targeted org and space 
+```
 bx target -o $org_name -s $space_name
-
-### Step 5: Create a Watson ML Instance
+```
+### Step 4: Create a Watson ML Instance
 Now Lets create an instance of Machine Learning Service
 
-#### 5.1. Setup a Watson ML Instance
+#### 4.1. Setup a Watson ML Instance
 ```
 bx service create pm-20 lite CLI_WML_Instance
 bx service key-create CLI_WML_Instance cli_key_CLI_WML_Instance
@@ -158,13 +105,64 @@ username=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "
 password=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "password"| awk -F": " '{print $2}'| cut -d'"' -f2`
 url=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "url"| awk -F": " '{print $2}'| cut -d'"' -f2`
 ```
-#### 5.2 Save the relevant ids for later use.
+#### 4.2 Save the relevant ids for later use.
 ```
 export ML_INSTANCE=$instance_id
 export ML_USERNAME=$username
 export ML_PASSWORD=$password
 export ML_ENV=$url
 ```
+
+### Step 5: Create a bucket in the Cloud to store your data
+
+A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is a huge "folder" in the cloud. You use the bucket to put and get any file or folder (e.g., your datasets) using an api-style interface.
+
+#### 5.1. Create a cloud storage instance:
+
+First, lets create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
+
+```
+bx resource service-instance-create `my_instance` cloud-object-storage lite global
+bx resource service-instance `my_instance`
+```
+
+#### 5.2. Get security credentials:
+
+We then create and get the credentials to `my_instance` and naming it `my_cli_key` so that you can create and access your bucket.
+
+Create key and print it:
+
+```
+bx resource service-key-create "my_cli_key" Writer --instance-name "my_instance" --parameters '{"HMAC":true}' > /dev/null 2>&1
+access_key_id=`bx resource service-key my_cli_key | grep "access_key_id"| cut -d\:  -f2`
+secret_access_key=`bx resource service-key my_cli_key | grep "secret_access_key"| cut -d\:  -f2`
+echo ""; echo "Credentials:"; echo "access_key_id - $access_key_id"; echo "secret_access_key - $secret_access_key"; echo ""
+```
+
+#### 3.3 Save your keys in a profile so you can reuse them later
+
+Use `aws` tool to add `access_key_id` and `secret_access_key` to a profile and name it `my_profile` (leave the other fields as None).
+
+```
+aws configure --profile my_profile
+```
+
+#### 3.4 Copy the keys! You'll need them again a little later to access your resources...
+
+#### 3.5. Create a bucket:
+
+Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. Below we use "my_bucket"
+
+```
+bucket_name="my_bucket"
+```
+and run:
+
+```
+aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
+```
+
+
 
 ## Congratulations you are done with the one-time SETUP!
 
