@@ -6,6 +6,7 @@ Here are the setup steps to to use the Machine Learing (ML) service.
 **NB: These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
 
 What we will do as a one time Setup:
+
 0. Confirm that you have an IBM Cloud userid
 1. Download [CLI tools](https://console.bluemix.net/docs/cli/index.html#overview) to access and manage resources in the IBM Cloud
 2. Login thru the CLI to your IBM Cloud account
@@ -23,8 +24,8 @@ Goto [https://console.bluemix.net/](https://console.bluemix.net/) and login
 #### 1.1. Download and Install the IBM Cloud CLI: `bx`
 'bx' allows you to start and manage resources (e.g., applications, containers, services, ...) in the IBM cloud. 
 
-Goto [bx CLI](https://console.bluemix.net/docs/cli/reference/bluemix_cli/download_cli.html#download_install).<br> 
-and download and install it following the instructions for your local machine operating system (OSX, Linux or Windows)
+Download [bx CLI](https://console.bluemix.net/docs/cli/reference/bluemix_cli/download_cli.html#download_install)
+and install it, following the instructions for your local machine operating system (OSX, Linux or Windows)
 
 #### 1.2. Install `awscli` using [pip](https://pypi.org/project/pip/)
 
@@ -157,9 +158,17 @@ aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create
 
 ##Congratulations you are done with the one-time SETUP!
 
-##Now, to test that your setup is working, lets try a simple model.
+Now, to test that your setup is working, lets try a simple model.
 
-### Step 0: Upload a dataset to your bucket:
+### Step 0. Get a dataset 
+For example, lets get the cifar10 dataset and do a little trainning..
+You can get this dataset from the Internet, e.g., by doing:
+```
+wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+tar xzf cifar-10-python.tar.gz
+``
+
+### Step 1: Upload the dataset to your bucket:
 
 ```
 aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile my_profile s3 cp cifar10/  s3://$bucket_name/cifar10 --recursive
@@ -167,11 +176,11 @@ aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile m
 
 
 
-### Step 7: Modify `pytorch-cifar.yml`
+### Step 2: Edit your manifest file, e.g., `pytorch-cifar.yml`
 
 This yaml file holds all the information needed for our job including what bucket, ml framework, and computing instance to use.
 
-#### 7.1. Copy the template manifest:
+#### 2.1. Copy the template manifest:
 
 ```
 cp pytorch-cifar-template.yml pytorch-cifar.yml
@@ -229,14 +238,14 @@ python3 main.py --cifar_path ${DATA_DIR}/cifar10
 
 This will execute main.py, which starts a training run of a specified model. Since no model is specified, it will train the default model, vgg16, for 10 epochs using the dataset in the bucket we created.
 
-### Step 8: Send code to run on Watson Studio!
+### Step 3: Send code to run on Watson Studio!
 
-#### 8.1. Zip code into a file:
+#### 3.1. Zip code into a file:
 ```
 zip model.zip main.py models/*
 ```
 
-#### 8.2. Send your code and manifest to IBM Watson Studio:
+#### 3.2. Send your code and manifest to IBM Watson Studio:
 ```
 bx ml train model.zip pytorch-cifar.yml
 ```
@@ -246,7 +255,7 @@ bx ml train model.zip pytorch-cifar.yml
 That's it! The command should generate a training ID for you, meaning our model has started training on Watson!
 
 
-### Step 9: Monitor training (Optional)
+### Step 4: Monitor the training (Optional)
 
 #### We can check the status of training using the `bx ml list` command:
 ```
