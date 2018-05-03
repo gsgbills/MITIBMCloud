@@ -69,13 +69,13 @@ MITIBMWatsonAiLab   us-south   ailab@us.ibm.com   5eb998dd20e3d7fc0153329e32362d
 Select the correct `Name` and save it in a variable, i.e.,
 ```
 org_name="MITIBMWatsonAiLab"
+bx target -o $org_name
 ```
 
 #### 3.2 Use your own space
-
 Now lets find out the name of the `space` for you under the `org`. 
 ```
-bx target -o $org_name
+bx account spaces
 ```
 This will return something like:
 ```
@@ -150,34 +150,23 @@ aws configure --profile my_profile
 #### 3.4 Copy the keys! You'll need them again a little later to access your resources...
 
 #### 3.5. Create a bucket:
-
 Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. Below we use "my_bucket"
-
 ```
 bucket_name="my_bucket"
-```
-and run:
-
-```
 aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
 ```
 
+##Congratulations you are done with the one-time SETUP!
 
+##Now, to test that your setup is working, lets try a simple model.
 
-## Congratulations you are done with the one-time SETUP!
-
-
-##Now, to test that your setup is working, lets try a simple model...
-
-### Step 6: Upload a dataset to your bucket: (Last setup step)
-
-This will upload our dataset to the bucket we created:
+### Step 0: Upload a dataset to your bucket:
 
 ```
 aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile my_profile s3 cp cifar10/  s3://$bucket_name/cifar10 --recursive
 ```
 
-You have completed the one-time setup! Now, we can start sending jobs to Watson.
+
 
 ### Step 7: Modify `pytorch-cifar.yml`
 
