@@ -43,7 +43,6 @@ The `machine-learning` plugin for `bx` lets you start, view, and stop your Machi
 bx plugin install machine-learning
 ```
 
-
 #### Step 2. Login to IBM Cloud account:
 Now we will create data and service resources in the IBM Cloud. First we login.
 ```
@@ -93,19 +92,24 @@ space_name="dev"
 ```
 bx target -o $org_name -s $space_name
 ```
-### Step 4: Create a Watson ML Instance
-Now Lets create an instance of Machine Learning Service
+### Step 4: Create a Watson ML Service Instance
+
 
 #### 4.1. Setup a Watson ML Instance
 ```
 bx service create pm-20 lite CLI_WML_Instance
 bx service key-create CLI_WML_Instance cli_key_CLI_WML_Instance
+```
+
+### 4.2 Retrieve the ids for later use
+```
 instance_id=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "instance_id"| awk -F": " '{print $2}'| cut -d'"' -f2`
 username=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "username"| awk -F": " '{print $2}'| cut -d'"' -f2`
 password=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "password"| awk -F": " '{print $2}'| cut -d'"' -f2`
 url=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "url"| awk -F": " '{print $2}'| cut -d'"' -f2`
 ```
-#### 4.2 Save the relevant ids for later use.
+
+#### 4.3 Save the relevant ids for later use.
 ```
 export ML_INSTANCE=$instance_id
 export ML_USERNAME=$username
@@ -115,22 +119,23 @@ export ML_ENV=$url
 
 ### Step 5: Create a bucket in the Cloud to store your data
 
-A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is a huge "folder" in the cloud. You use the bucket to put and get any file or folder (e.g., your datasets) using an api-style interface.
+A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is a huge "folder" in the cloud. 
+You use the bucket to put and get any file or folder (e.g., your datasets) using an api-style interface.
 
 #### 5.1. Create a cloud storage instance:
 
 First, lets create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
 
 ```
-bx resource service-instance-create `my_instance` cloud-object-storage lite global
-bx resource service-instance `my_instance`
+bx resource service-instance-create "my_instance" cloud-object-storage standard global
+bx resource service-instance "my_instance"
 ```
 
 #### 5.2. Get security credentials:
 
 We then create and get the credentials to `my_instance` and naming it `my_cli_key` so that you can create and access your bucket.
 
-Create key and print it:
+Create key, store it and print it:
 
 ```
 bx resource service-key-create "my_cli_key" Writer --instance-name "my_instance" --parameters '{"HMAC":true}' > /dev/null 2>&1
@@ -139,7 +144,7 @@ secret_access_key=`bx resource service-key my_cli_key | grep "secret_access_key"
 echo ""; echo "Credentials:"; echo "access_key_id - $access_key_id"; echo "secret_access_key - $secret_access_key"; echo ""
 ```
 
-#### 3.3 Save your keys in a profile so you can reuse them later
+#### 5.3 Save your keys in a profile so you can reuse them later
 
 Use `aws` tool to add `access_key_id` and `secret_access_key` to a profile and name it `my_profile` (leave the other fields as None).
 
@@ -147,12 +152,19 @@ Use `aws` tool to add `access_key_id` and `secret_access_key` to a profile and n
 aws configure --profile my_profile
 ```
 
-#### 5.4 Copy the keys! You'll need them again a little later to access your resources...
+#### 5.4 Note these 2 keys! You'll need them again later to access your resources...
+```
+export MY_BUCKET_KEY = access_key_id
+export MY_BUCKET_SECRET_KEY = secret_access_key
+```
 
 #### 5.5. Create a bucket:
-Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. Below we use "my_bucket"
+Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name. **NB: the bucket names may not contain upper-case, underscores, dashes, periods, etc. Just use simple text, e.g., below we call the bucket "mybucket".  
 ```
-bucket_name="my_bucket"
+bucket_name="mybucket"
+alias bucketcmd = ""
+```
+
 aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
 ```
 
@@ -164,17 +176,16 @@ Now, to test that your setup is working, lets try a simple model.
 For example, lets get the cifar10 dataset and do a little trainning..
 You can get this dataset from the Internet, e.g., by doing:
 ```
+mkdir cifar10
+cd cifar10
 wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
-tar xzf cifar-10-python.tar.gz
-``
+```
 
 ### Step 1: Upload the dataset to your bucket:
 
 ```
 aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile my_profile s3 cp cifar10/  s3://$bucket_name/cifar10 --recursive
 ```
-
-
 
 ### Step 2: Edit your manifest file, e.g., `pytorch-cifar.yml`
 
@@ -185,7 +196,7 @@ This yaml file holds all the information needed for our job including what bucke
 ```
 cp pytorch-cifar-template.yml pytorch-cifar.yml
 ```
-#### 7.2. Edit `pytorch-cifar.yml`:
+#### 2.2. Edit `pytorch-cifar.yml`:
 
 Add your author info and replace the values of `aws_access_key_id`, `aws_secret_access_key`, and `bucket` in `pytorch-cifar.yml` with your storage instance credentials and your chosen bucket name from before for both the data and results references.
 
@@ -229,18 +240,19 @@ training_results_reference:
   type: s3
 ```
 
-Notice that under execution in the yaml file, we have already specified a command that will be executed when the job reaches the server.
+Notice that under `execution` in the yaml file, we specified a command that will be executed when the job reaches the server.
 
 ```
 python3 main.py --cifar_path ${DATA_DIR}/cifar10
       --checkpoint_path ${RESULT_DIR} --epochs 10
 ```
 
-This will execute main.py, which starts a training run of a specified model. Since no model is specified, it will train the default model, vgg16, for 10 epochs using the dataset in the bucket we created.
+This will execute main.py, which starts a training run of a specified model. 
+Since no model is specified, it will train the default model, vgg16, for 10 epochs using the dataset in the bucket we created.
 
 ### Step 3: Send code to run on Watson Studio!
 
-#### 3.1. Zip code into a file:
+#### 3.1. Zip all the code and models into a file:
 ```
 zip model.zip main.py models/*
 ```
@@ -376,5 +388,5 @@ VGG19  ( config in  <class 'models.vgg.VGG'> )
 | [DPN92](https://arxiv.org/abs/1707.01629)             | 95.16%      |
 
 ## Enjoy
-Hendrik Strobelt (IBM Research), Evan Phibbs (IBM Research), Victor C. Dibia (IBM Research)
+Content derived from material provided by Hendrik Strobelt (IBM Research), Evan Phibbs (IBM Research), Victor C. Dibia (IBM Research)
 
