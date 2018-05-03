@@ -263,7 +263,7 @@ zip model.zip main.py models/*
 bx ml train model.zip pytorch-cifar.yml
 ```
 
-<img src="img/startrun.jpg" width=100%>
+<! img src="img/startrun.jpg" width=100%>
 
 That's it! The command should generate a training ID for you, meaning our model has started training on Watson!
 
@@ -274,7 +274,7 @@ That's it! The command should generate a training ID for you, meaning our model 
 ```
 bx ml list training-runs
 ```
-<img src="img/listruns.jpg" width=100%>
+<! img src="img/listruns.jpg" width=100%>
 
 #### We can also continuously monitor a training run by using the `bx ml monitor` command:
 ```
