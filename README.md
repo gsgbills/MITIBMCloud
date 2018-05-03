@@ -1,45 +1,27 @@
 # MITIBMCloud
-Repo for information relevant to IBM Cloud use in MIT
+Information relevant to IBM Cloud use in MIT
+ls -lt
 
-## The description here includes input from Hendryk repo and Kaoudar
+/*: The description here includes input from Hendryk and Kaoudar>
+*/
 
-## How can I run code on IBM Watson Studio (for free) ?
+## How can I run code on IBM Cloud [Watson Studio](https://www.ibm.com/cloud/watson-studio) (for free) ?
 
-Here are the steps to setup your account to run your ML training runs in the cloud on different numbers and types of GPUs. 
-After setup you will be able to train your machine learning models on Watson studio in less than a minute! 
+Here are the steps to setup your account to use Machine Learing (ML) training runs on different numbers and types of GPUs.
+**These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
 
-For further information you can read [Watson Studio](https://www.ibm.com/cloud/watson-studio)
-
-
-### Step 0: Confirm that you have a valid account on IBM Cloud
+### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
 Goto [https://console.bluemix.net/](https://console.bluemix.net/) and login
+(If you do NOT have a valid account for MIT, please contact TBD@us.ibm.com)
 
 ### Step 1: Install CLI tools in your local machine (laptop) to remotely access your Cloud resources
 
 #### 1.1. Download and Install the IBM Cloud CLI: `bx`
 'bx' allows you to start and manage resources (e.g., applications, containers, services, ...) in the IBM cloud. 
 
-Goto `bx` [CLI](https://console.bluemix.net/docs/cli/reference/bluemix_cli/download_cli.html#download_install).<br> 
-
-OSX:
-
-```
-curl -fsSL https://clis.ng.bluemix.net/install/osx | sh
-```
-
-Linux:
-
-```
-curl -fsSL https://clis.ng.bluemix.net/install/linux | sh
-```
-
-[c]:# Windows:
-
-```
-powershell.exe -command "iex (New-Object Net.WebClient).DownloadString('https://clis.ng.bluemix.net/install/powershell')"
-```
->
+Goto [bx CLI](https://console.bluemix.net/docs/cli/reference/bluemix_cli/download_cli.html#download_install).<br> 
+and download and install it following the instructions for your local machine operating system (OSX, Linux or Windows)
 
 #### 1.2. Install `awscli` using [pip](https://pypi.org/project/pip/)
 
@@ -58,26 +40,26 @@ bx plugin install machine-learning
 ```
 
 
-#### 3.2. Login with your IBM Cloud account:
-
+#### Step 2. Login to IBM Cloud account:
+Now we will create data and service resources in the IBM Cloud. First we login.
 ```
 bx login
 ```
 
-### Step 4: Create a bucket
+### Step 3: Create a bucket in the Cloud to store your data
 
-A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is like a huge folder in the cloud which you can put and get any file or folder (specifically your datasets) using an api-style interface.
+A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object_store.html) is a huge "folder" in the cloud. You use the bucket to put and get any file or folder (e.g., your datasets) using an api-style interface.
 
-#### 4.1. Create a cloud instance:
+#### 3.1. Create a cloud storage instance:
 
-First, we create your own personal cloud storage instance to hold your bucket and name the instance `my_instance`.
+First, we create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
 
 ```
 bx resource service-instance-create my_instance cloud-object-storage lite global
 bx resource service-instance my_instance
 ```
 
-#### 4.2. Get credentials:
+#### 3.2. Get credentials:
 
 We then create and get your personal instance credentials naming it `my_cli_key` so that you can create and access your bucket.
 
