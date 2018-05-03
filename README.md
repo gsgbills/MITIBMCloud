@@ -10,7 +10,7 @@ What we will do:
 0. Confirm that you have an IBM Cloud userid
 1. Download [CLI tools](https://console.bluemix.net/docs/cli/index.html#overview) to access and manage resources in the IBM Cloud
 2. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
-3. 
+3. 4. Configure your IBM Cloud githaccount
 
 ### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
@@ -102,33 +102,50 @@ aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create
 
 
 
-#### 5.1. Configure your account
+### 4. Configure your account to access IBM Cloud 
 
 In order to run jobs on Watson, you need an `organization` (also called `org`) and a `space` to hold your jobs. 
-`Org` names are also globally unique.
-It is possible that someone else in your team has already created the `org` where you all share assets.
-To find out if you have an `org`, you can run the command:<bx>
+`Org` names are also globally unique. 
+
+#### 4.1 Use an existing org
+The account owner should have already created an `org` for you (and others) to share assets.
+You can find out the organizations available for you with the command:<br>
 ```
 bx account orgs
 ```
-If there is already an org (or more) the command will return something like:
+The command will return something like:
 ```
 Name                Region     Account owner      Account ID                         Status   
 MITIBMWatsonAiLab   us-south   ailab@us.ibm.com   5eb998dd20e3d7fc0153329e32362d64   active   
 ```
-In this case, you  use this organization and set
+Select the correct `Name` and save it in a variable, i.e.,
+```
+org_name="MITIBMWatsonAiLab"
+```
 
+#### 4.2 Create your own space
+
+Now lets find out the name of the `space` for you under the `org`. 
 ```
-org_name=...
-space_name=...
-bx account org-create $org_name
 bx target -o $org_name
-bx account space-create $space_name
-bx target -o $org_name -s $space_name
 ```
+This will return something like:
+```
+Getting spaces under organization MITIBMWatsonAiLab in region us-south as myuserid@mit.edu...
+OK
+
+Name   
+dev 
+```
+Select the correct space `Name` and save it in a variable, i.e.,
+```
+space_name="dev"
+```
+#### 4.3 Lets set the targeted org and space 
+bx target -o $org_name -s $space_name
 
 ### Step 5: Create a Watson ML Instance
-#### 5.2. Setup a Watson ML Instance
+#### 5.1. Setup a Watson ML Instance
 
 ```
 bx service create pm-20 lite CLI_WML_Instance
