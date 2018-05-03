@@ -1,14 +1,16 @@
 # MITIBMCloud
 Information relevant to IBM Cloud use in MIT
-ls -lt
-
-/*: The description here includes input from Hendryk and Kaoudar>
-*/
 
 ## How can I run code on IBM Cloud [Watson Studio](https://www.ibm.com/cloud/watson-studio) (for free) ?
 
 Here are the steps to setup your account to use Machine Learing (ML) training runs on different numbers and types of GPUs.
 **These steps use a Command Line Interface (CLI). There is an alternative browser used interface** 
+
+What we will do:
+0. Confirm that you have an IBM Cloud userid
+1. Download [CLI tools](https://console.bluemix.net/docs/cli/index.html#overview) to access and manage resources in the IBM Cloud
+2. Define a [Cloud Object Storage](https://www.ibm.com/cloud/object-storage/faq) Instance to store your data.
+3. 
 
 ### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
@@ -25,7 +27,7 @@ and download and install it following the instructions for your local machine op
 
 #### 1.2. Install `awscli` using [pip](https://pypi.org/project/pip/)
 
-The [awscli](https://docs.aws.amazon.com/cli/latest/userguide/) lets you setup and upload data to your buckets. (Will get to this later)
+The [aws CLI](https://docs.aws.amazon.com/cli/latest/userguide/) lets you setup and upload data to your buckets. (Will get to this later)
 
 ```
 pip install awscli
@@ -52,14 +54,14 @@ A [bucket](https://datascience.ibm.com/docs/content/analyze-data/ml_dlaas_object
 
 #### 3.1. Create a cloud storage instance:
 
-First, we create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
+First, lets create your own personal cloud storage instance to hold your bucket(s) and name the instance `my_instance`.
 
 ```
-bx resource service-instance-create my_instance cloud-object-storage lite global
-bx resource service-instance my_instance
+bx resource service-instance-create `my_instance` cloud-object-storage lite global
+bx resource service-instance `my_instance`
 ```
 
-#### 3.2. Get credentials:
+#### 3.2. Get security credentials:
 
 We then create and get your personal instance credentials naming it `my_cli_key` so that you can create and access your bucket.
 
@@ -72,6 +74,8 @@ secret_access_key=`bx resource service-key my_cli_key | grep "secret_access_key"
 echo ""; echo "Credentials:"; echo "access_key_id - $access_key_id"; echo "secret_access_key - $secret_access_key"; echo ""
 ```
 
+#### 3.3 Save your keys in a profile so you can reuse them later
+
 Add `access_key_id` and `secret_access_key` to your awscli profile and name it `my_profile` (leave the other fields as None).
 
 ```
@@ -80,13 +84,15 @@ aws configure --profile my_profile
 
 Copy these keys! You'll need them again a little later.
 
-#### 4.3. Create a bucket:
+#### 3.4. Create a bucket:
 
-Now, we make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name.
+Now, lets make a bucket and name it something unique! Buckets are named globally, which means that only one IBM Cloud account can have a bucket with a particular name.
 
 ```
-bucket_name=<DEFINE_A_NAME>
+bucket_name=<A_UNIQUE_NAME_FOR_YOUR_BUCKET>
 ```
+for example:<br>
+bucket_name=mylastnamemyfirstname
 
 and run:
 
@@ -94,11 +100,23 @@ and run:
 aws --endpoint-url=http://s3-api.us-geo.objectstorage.softlayer.net s3api create-bucket --bucket $bucket_name --profile my_profile 2>&1
 ```
 
-### Step 5: Create a Watson ML Instance
+
 
 #### 5.1. Configure your account
 
-In order to run jobs on Watson, you will need to create an organization and space to hold your jobs. Organization names are also globally unique.
+In order to run jobs on Watson, you need an `organization` (also called `org`) and a `space` to hold your jobs. 
+`Org` names are also globally unique.
+It is possible that someone else in your team has already created the `org` where you all share assets.
+To find out if you have an `org`, you can run the command:<bx>
+```
+bx account orgs
+```
+If there is already an org (or more) the command will return something like:
+```
+Name                Region     Account owner      Account ID                         Status   
+MITIBMWatsonAiLab   us-south   ailab@us.ibm.com   5eb998dd20e3d7fc0153329e32362d64   active   
+```
+In this case, you  use this organization and set
 
 ```
 org_name=...
@@ -109,6 +127,7 @@ bx account space-create $space_name
 bx target -o $org_name -s $space_name
 ```
 
+### Step 5: Create a Watson ML Instance
 #### 5.2. Setup a Watson ML Instance
 
 ```
