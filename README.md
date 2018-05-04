@@ -104,7 +104,7 @@ bx service create pm-20 lite CLI_WML_Instance
 bx service key-create CLI_WML_Instance cli_key_CLI_WML_Instance
 ```
 
-### 4.2 Retrieve the ids for later use
+#### 4.2 Retrieve and save the ids for later use
 ```
 instance_id=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "instance_id"| awk -F": " '{print $2}'| cut -d'"' -f2`
 username=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "username"| awk -F": " '{print $2}'| cut -d'"' -f2`
@@ -112,7 +112,6 @@ password=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "
 url=`bx service key-show CLI_WML_Instance cli_key_CLI_WML_Instance | grep "url"| awk -F": " '{print $2}'| cut -d'"' -f2`
 ```
 
-#### 4.3 Save the relevant ids for later use.
 ```
 export ML_INSTANCE=$instance_id
 export ML_USERNAME=$username
@@ -267,7 +266,6 @@ bx ml train model.zip pytorch-cifar.yml
 
 That's it! The command should generate a training ID for you, meaning our model has started training on Watson!
 
-
 ### Step 4: Monitor the training (Optional)
 
 #### We can check the status of training using the `bx ml list` command:
@@ -298,95 +296,6 @@ aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile m
 See [https://dataplatform.ibm.com/docs/content/analyze-data/ml_dlaas_working_with_new_models.html](https://dataplatform.ibm.com/docs/content/analyze-data/ml_dlaas_working_with_new_models.html)
 
 
-## Using the tool
-```
-usage: main.py [-h] [-l] [--lr LR] [--resume] [--cifar_path CIFAR_PATH]
-               [--checkpoint_path CP] [--epochs EPOCHS]
-               [--model MODEL]
-
-PyTorch CIFAR10 Training
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -l                    lists all available models (default: False)
-  --lr LR               learning rate (default: 0.1)
-  --resume, -r          resume from checkpoint (default: False)
-  --cifar_path          path to cifar tar.gz (default: ./cifar10)
-  --checkpoint_path CP  checkpoint path (default: .)
-  --epochs EPOCHS       no of epochs (default: 10)
-  --model MODEL         Model type: vgg16,... (default: vgg16)
-```
-
-### Example for a vgg19:
-
-```
-# on local machine:
-python3 main.py --lr 0.01 --epochs 100 --model vgg19
-
-# in Watson Machine Learning yaml file:
-python3 main.py --cifar_path ${DATA_DIR}/cifar10
-      --checkpoint_path ${RESULT_DIR}
-      --epochs 100 --model vgg19 --lr 0.01
-```
-
-### Available Models:
-
-```
-DPN26  ( <function DPN26 at 0x1129dbc80> )
-DPN92  ( <function DPN92 at 0x112a01048> )
-DenseNet121  ( <function DenseNet121 at 0x1129e10d0> )
-DenseNet161  ( <function DenseNet161 at 0x1129e16a8> )
-DenseNet169  ( <function DenseNet169 at 0x1129e1598> )
-DenseNet201  ( <function DenseNet201 at 0x1129e1620> )
-GoogLeNet  ( <class 'models.googlenet.GoogLeNet'> )
-Inception  ( <class 'models.googlenet.Inception'> )
-LeNet  ( <class 'models.lenet.LeNet'> )
-MobileNet  ( <class 'models.mobilenet.MobileNet'> )
-MobileNetV2  ( <class 'models.mobilenetv2.MobileNetV2'> )
-PNASNetA  ( <function PNASNetA at 0x112a018c8> )
-PNASNetB  ( <function PNASNetB at 0x112a01ea0> )
-PreActBottleneck  ( <class 'models.preact_resnet.PreActBottleneck'> )
-PreActResNet101  ( <function PreActResNet101 at 0x1129ed730> )
-PreActResNet152  ( <function PreActResNet152 at 0x1129ed7b8> )
-PreActResNet18  ( <function PreActResNet18 at 0x1129ed1e0> )
-PreActResNet34  ( <function PreActResNet34 at 0x1129ed620> )
-PreActResNet50  ( <function PreActResNet50 at 0x1129ed6a8> )
-ResNeXt29_2x64d  ( <function ResNeXt29_2x64d at 0x1129eea60> )
-ResNeXt29_32x4d  ( <function ResNeXt29_32x4d at 0x1129ed0d0> )
-ResNeXt29_4x64d  ( <function ResNeXt29_4x64d at 0x1129eef28> )
-ResNeXt29_8x64d  ( <function ResNeXt29_8x64d at 0x1129ed048> )
-ResNet101  ( <function ResNet101 at 0x1129ee840> )
-ResNet152  ( <function ResNet152 at 0x1129ee8c8> )
-ResNet18  ( <function ResNet18 at 0x1129ee2f0> )
-ResNet34  ( <function ResNet34 at 0x1129ee730> )
-ResNet50  ( <function ResNet50 at 0x1129ee7b8> )
-SENet18  ( <function SENet18 at 0x112a01378> )
-SepConv  ( <class 'models.pnasnet.SepConv'> )
-ShuffleNet  ( <class 'models.shufflenet.ShuffleNet'> )
-ShuffleNetG2  ( <function ShuffleNetG2 at 0x1129e1c80> )
-ShuffleNetG3  ( <function ShuffleNetG3 at 0x1129ee158> )
-VGG11  ( config in  <class 'models.vgg.VGG'> )
-VGG13  ( config in  <class 'models.vgg.VGG'> )
-VGG16  ( config in  <class 'models.vgg.VGG'> )
-VGG19  ( config in  <class 'models.vgg.VGG'> )
-```
-
-
-
-
-### Accuracy as reported by `kuangliu`:
-| Model             | Acc.        |
-| ----------------- | ----------- |
-| [VGG16](https://arxiv.org/abs/1409.1556)              | 92.64%      |
-| [ResNet18](https://arxiv.org/abs/1512.03385)          | 93.02%      |
-| [ResNet50](https://arxiv.org/abs/1512.03385)          | 93.62%      |
-| [ResNet101](https://arxiv.org/abs/1512.03385)         | 93.75%      |
-| [MobileNetV2](https://arxiv.org/abs/1801.04381)       | 94.43%      |
-| [ResNeXt29(32x4d)](https://arxiv.org/abs/1611.05431)  | 94.73%      |
-| [ResNeXt29(2x64d)](https://arxiv.org/abs/1611.05431)  | 94.82%      |
-| [DenseNet121](https://arxiv.org/abs/1608.06993)       | 95.04%      |
-| [PreActResNet18](https://arxiv.org/abs/1603.05027)    | 95.11%      |
-| [DPN92](https://arxiv.org/abs/1707.01629)             | 95.16%      |
 
 ## Enjoy
 Content derived from material provided by Hendrik Strobelt (IBM Research), Evan Phibbs (IBM Research), Victor C. Dibia (IBM Research)
