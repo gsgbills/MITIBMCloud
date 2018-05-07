@@ -17,7 +17,7 @@ What we will do as a one time Setup:
 ### Step 0: Confirm that you have a valid account on IBM Cloud. 
 
 Goto [https://console.bluemix.net/](https://console.bluemix.net/) and login
-(If you do NOT have a valid account for MIT, please contact TBD@us.ibm.com)
+(If you are part of the IBM-MIT AI lab, but do NOT have a valid account, please contact noor.fairoza@ibm.com)
 
 ### Step 1: Install CLI tools in your local machine (laptop) to remotely access your Cloud resources
 
@@ -179,6 +179,8 @@ You can get this dataset from the Internet, e.g., by doing:
 mkdir cifar10
 cd cifar10
 wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+tar xvf cifar-10-python.tar.gz
+rm cifar-10-python.tar.gz
 ```
 
 ### Step 1: Upload the dataset to your bucket:
@@ -189,16 +191,17 @@ aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile m
 
 ### Step 2: Edit your manifest file, e.g., `pytorch-cifar.yml`
 
-This yaml file holds all the information needed for our job including what bucket, ml framework, and computing instance to use.
+This yaml file should hold all the information needed for executing the job, including what bucket, ml framework, and computing instance to use.
 
 #### 2.1. Copy the template manifest:
 
 ```
-cp pytorch-cifar-template.yml pytorch-cifar.yml
+cp pytorch-cifar-template.yml my-pytorch-cifar.yml
 ```
-#### 2.2. Edit `pytorch-cifar.yml`:
+#### 2.2. Edit `my-pytorch-cifar.yml`:
 
-Add your author info and replace the values of `aws_access_key_id`, `aws_secret_access_key`, and `bucket` in `pytorch-cifar.yml` with your storage instance credentials and your chosen bucket name from before for both the data and results references.
+Add your author info and replace the values of `aws_access_key_id`, `aws_secret_access_key`, and `bucket` in `my-pytorch-cifar.yml` with your storage instance credentials and your chosen bucket name.
+This should be done for both the data input reference (e.g., `training_data_reference`) and the output reference (e.g., `training_results_reference`). Notice that you may use the same bucket for both input and output, but this is not required.
 
 ```yaml
 model_definition:
@@ -207,11 +210,11 @@ model_definition:
     name: pytorch
     version: 0.3
 #name of the training-run
-  name: cifar10 in pytorch
+  name: MYRUN
 #Author name and email
   author:
-    name: John Doe
-    email: johndoe@ibm.com
+    name: JOHN DOE
+    email: JOHNDOE@MIT.EDU
   description: This is running cifar training on multiple models
   execution:
 #Command to execute -- see script parameters in later section !!
@@ -224,35 +227,37 @@ training_data_reference:
   name: training_data_reference_name
   connection:
     endpoint_url: "https://s3-api.us-geo.objectstorage.service.networklayer.com"
-    aws_access_key_id: < from cloud portal >
-    aws_secret_access_key: < from cloud portal >
+    aws_access_key_id: < YOUR SAVED ACCESS KEY >
+    aws_secret_access_key: < YOUR SAVED SECRET ACCESS KEY >
   source:
-    bucket: < bucket name >
+    bucket: < mybucketname >
   type: s3
 training_results_reference:
   name: training_results_reference_name
   connection:
     endpoint_url: "https://s3-api.us-geo.objectstorage.service.networklayer.com"
-    aws_access_key_id: < from cloud portal >
-    aws_secret_access_key: < from cloud portal >
+    aws_access_key_id: < YOUR SAVED ACCESS KEY >
+    aws_secret_access_key: < YOUR SAVED SECRET ACCESS KEY >
   target:
-    bucket: < bucket name >
+    bucket: < mybucketname >
   type: s3
 ```
 
-Notice that under `execution` in the yaml file, we specified a command that will be executed when the job reaches the server.
+Notice that under `execution` in the yaml file, we specified a command that will be executed 
+when the job starts execution at the server.
 
 ```
 python3 main.py --cifar_path ${DATA_DIR}/cifar10
       --checkpoint_path ${RESULT_DIR} --epochs 10
 ```
 
-This will execute main.py, which starts a training run of a specified model. 
-Since no model is specified, it will train the default model, vgg16, for 10 epochs using the dataset in the bucket we created.
+This command will execute `main.py`, which starts a training run of a specified model. 
+Since no model is specified, it will train the default model, `vgg16`, 
+for 10 epochs using the dataset that we uploaded to the bucket. 
 
 ### Step 3: Send code to run on Watson Studio!
 
-#### 3.1. Zip all the code and models into a file:
+#### 3.1. Zip all the code and models into a .zip file:
 ```
 zip model.zip main.py models/*
 ```
@@ -291,9 +296,10 @@ You can also inspect the status of training by downloading and viewing the train
 aws --endpoint-url=https://s3-api.us-geo.objectstorage.softlayer.net --profile my_profile s3 cp s3://my_bucket/ < trainingID Rig >/learner-1/training-log.txt -
 ```
 
-### Additional Information
+### Additional Information on Deep Learning in IBM Cloud
 
-See [https://dataplatform.ibm.com/docs/content/analyze-data/ml_dlaas_working_with_new_models.html](https://dataplatform.ibm.com/docs/content/analyze-data/ml_dlaas_working_with_new_models.html)
+- [Deep Learning in IBM Studio](https://www.ibm.com/cloud/deep-learning)
+- [Deep Learning Documentation](https://dataplatform.ibm.com/docs/content/analyze-data/ml_dlaas_working_with_new_models.html)
 
 
 
